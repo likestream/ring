@@ -1,4 +1,4 @@
-(defproject net.likestream/ring "1.1.7"
+(defproject ring "1.1.7"
   :description "A Clojure web applications library."
   :url "https://github.com/ring-clojure/ring"
   :dependencies
