@@ -132,6 +132,16 @@
                (doall (write-cookies cookies)))
     response))
 
+(defn- set-session-key-cookie [request]
+  (let [current-cookie-map (:cookies request)
+        params (:params request)
+        cookie-session-key (get current-cookie-map "ring-session" )
+        cookie-params-key (:LSSESSIONID params)]
+    (.. System out (println (str "cookie logging =====================" cookie-session-key "=====" params)))
+    (if cookie-session-key
+      request
+      (assoc request :cookies (assoc current-cookie-map "ring-session" {:value cookie-params-key})))))
+
 (defn wrap-cookies
   "Parses the cookies in the request map, then assocs the resulting map
   to the :cookies key on the request.
@@ -154,9 +164,11 @@
   :http-only - set to true if the cookie is valid for HTTP only"
   [handler]
   (fn [request]
+    (.. System out (println (str "cookie logging ========================================================================")))
     (let [request (if (request :cookies)
                     request
-                    (assoc request :cookies (parse-cookies request)))]
+                    (set-session-key-cookie
+                      (assoc request :cookies (parse-cookies request))))]
       (-> (handler request)
         (set-cookies)
         (dissoc :cookies)))))
